@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Serra Fluminense Trip</title>
+
+https://unpkg.com/leaflet@1.9.4/dist/leaflet.css
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Segoe UI,sans-serif;
+}
+
+body{
+display:flex;
+height:100vh;
+overflow:hidden;
+}
+
+#sidebar{
+width:330px;
+background:white;
+overflow:auto;
+padding:20px;
+box-shadow:0 0 20px rgba(0,0,0,.2);
+z-index:1000;
+}
+
+#map{
+flex:1;
+}
+
+h1{
+color:#0E4878;
+margin-bottom:15px;
+}
+
+.day{
+margin-bottom:20px;
+}
+
+.day h2{
+color:#0E4878;
+margin-bottom:5px;
+}
+
+.day li{
+margin-left:20px;
+padding:4px;
+}
+
+button{
+width:100%;
+padding:12px;
+border:none;
+background:#0E4878;
+color:white;
+border-radius:10px;
+cursor:pointer;
+margin-top:20px;
+font-size:16px;
+}
+
+button:hover{
+background:#155d96;
+}
+
+.popup-title{
+font-size:18px;
+font-weight:bold;
+}
+
+@media(max-width:768px){
+
+body{
+flex-direction:column;
+}
+
+#sidebar{
+width:100%;
+height:40%;
+}
+
+#map{
+height:60%;
+}
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div id="sidebar">
+
+<h1>🏔️ Serra Fluminense Trip</h1>
+
+<div class="day">
+<h2>Sábado</h2>
+<ul>
+<li>🏰 Museu Imperial</li>
+<li>🌺 Palácio de Cristal</li>
+<li>🍽️ Almoço</li>
+<li>🍺 Bohemia 14h</li>
+<li>⛪ Catedral São Pedro</li>
+<li>🙏 Trono de Fátima</li>
+<li>🏰 Taberna do Castelo</li>
+</ul>
+</div>
+
+<div class="day">
+<h2>Domingo</h2>
+<ul>
+<li>❤️ Vale do Amor</li>
+<li>🏛️ Quitandinha</li>
+<li>⛪ Igreja Luterana</li>
+<li>⚔️ Praça Cavaleiro Medieval</li>
+</ul>
+</div>
+
+<div class="day">
+<h2>Teresópolis</h2>
+<ul>
+<li>🍻 Vila St Gallen</li>
+<li>🛍️ Feirinha do Alto</li>
+<li>⛪ Igreja Santa Teresa</li>
+</ul>
+</div>
+
+<div class="day">
+<h2>Segunda</h2>
+<ul>
+<li>⚽ Granja Comary</li>
+<li>⛪ Santo Antônio de Paquequer</li>
+<li>💧 Cachoeira dos Frades</li>
+<li>🍽️ Paraíso da Serra</li>
+</ul>
+</div>
+
+<button onclick="iniciarTour()">
+▶ Iniciar Tour
+</button>
+
+</div>
+
+<div id="map"></div>
+
+https://unpkg.com/leaflet@1.9.4/dist/leaflet.jsscript>
+
+<script>
+
+const locais = [
+
+["🏰 Museu Imperial",-22.5096,-43.1773],
+["🌺 Palácio de Cristal",-22.5120,-43.1759],
+["🍺 Bohemia",-22.5103,-43.1844],
+["⛪ Catedral",-22.5090,-43.1802],
+["🙏 Trono de Fátima",-22.5011,-43.1796],
+["🏰 Taberna do Castelo",-22.4055,-43.1339],
+
+["❤️ Vale do Amor",-22.3646,-43.0244],
+["🏛️ Quitandinha",-22.5290,-43.2037],
+["⛪ Igreja Luterana",-22.5100,-43.1806],
+["⚔️ Praça Cavaleiro Medieval",-22.4370,-43.1437],
+
+["🍻 Vila St Gallen",-22.4127,-42.9780],
+["🛍️ Feirinha do Alto",-22.4173,-42.9782],
+["⛪ Igreja Santa Teresa",-22.4161,-42.9755],
+
+["⚽ Granja Comary",-22.4257,-42.9793],
+["⛪ Santo Antônio",-22.4225,-42.9818],
+["💧 Cachoeira dos Frades",-22.3226,-42.9532],
+["🍽️ Paraíso da Serra",-22.3975,-42.9699]
+
+];
+
+const map = L.map('map').setView([-22.47,-43.08],10);
+
+L.tileLayer(
+'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+{
+maxZoom:19,
+attribution:'© OpenStreetMap'
+}
+).addTo(map);
+
+locais.forEach(item => {
+
+L.marker([item[1], item[2]])
+.addTo(map)
+.bindPopup(`
+<div class="popup-title">${item[0]}</div>
+`);
+
+});
+
+const rota = locais.map(x => [x[1],x[2]]);
+
+L.polyline(
+rota,
+{
+color:'#0E4878',
+weight:5
+}
+).addTo(map);
+
+const viajante =
+L.circleMarker(rota[0],{
+radius:10,
+color:'red',
+fillColor:'red',
+fillOpacity:1
+}).addTo(map);
+
+function iniciarTour(){
+
+let i = 0;
+
+const animacao = setInterval(()=>{
+
+i++;
+
+if(i >= rota.length){
+
+clearInterval(animacao);
+
+alert('Viagem concluída ✅');
+
+return;
+
+}
+
+viajante.setLatLng(rota[i]);
+
+map.flyTo(
+rota[i],
+13,
+{
+duration:1.5
+}
+);
+
+},2000);
+
+}
+
+</script>
+
+</body>
+</html>
